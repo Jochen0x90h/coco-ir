@@ -1,0 +1,102 @@
+#pragma once
+
+#include <coco/BufferDevice.hpp>
+#include <coco/align.hpp>
+#include <coco/platform/Loop_Queue.hpp>
+#include <coco/platform/dma.hpp>
+#include <coco/platform/gpio.hpp>
+#include <coco/platform/timer.hpp>
+#include <coco/platform/nvic.hpp>
+
+
+namespace coco {
+
+/// @param Implementation of I2C hardware interface for stm32f0 and stm32g4 with multiple virtual channels.
+///
+/// Reference manual:
+///   f0: https://www.st.com/resource/en/reference_manual/dm00031936-stm32f0x1stm32f0x2stm32f0x8-advanced-armbased-32bit-mcus-stmicroelectronics.pdf (Code Examples: Section A.14)
+///   g4: https://www.st.com/resource/en/reference_manual/rm0440-stm32g4-series-advanced-armbased-32bit-mcus-stmicroelectronics.pdf
+/// Data sheet:
+///   f042: https://www.st.com/resource/en/datasheet/stm32f042f6.pdf
+///   f051: https://www.st.com/resource/en/datasheet/dm00039193.pdf
+///   g431: https://www.st.com/resource/en/datasheet/stm32g431rb.pdf
+/// Resources:
+///   I2C
+///   DMA
+class IrReceiver_TIM : public BufferDevice {
+public:
+    /// @param Constructor
+    /// @param loop event loop
+    /// @param inputPin input pin from the IR receiver, must be channel 1 or 2 of a timer
+    /// @param inputIndex input index of the timer, 1 or 2
+    /// @param timerInfo info of TIM instance to use
+    /// @param clock timer clock (e.g. APB1_TIMER_CLOCK or APB2_TIMER_CLOCK, depending on whether the timer is clocked by APB1 or APB2)
+    IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, int inputIndex, const timer::GpInfo &timerInfo, Hertz<> clock);
+    ~IrReceiver_TIM() override;
+
+
+    // internal buffer base class, derives from IntrusiveListNode for the list of buffers and Loop_Queue::Handler to be notified from the event loop
+    class BufferBase : public coco::Buffer, public IntrusiveListNode, public Loop_Queue::Handler {
+        friend class IrReceiver_TIM;
+    public:
+        /// @brief Constructor
+        /// @param data data of the buffer
+        /// @param capacity capacity of the buffer
+        /// @param device device to attach to
+        BufferBase(uint8_t *data, int capacity, IrReceiver_TIM &device);
+        ~BufferBase() override;
+
+        // Buffer methods
+        bool start(Op op) override;
+        bool cancel() override;
+
+    protected:
+        void start();
+        void handle() override;
+
+        IrReceiver_TIM &device;
+
+        Op op;
+    };
+
+    /// @brief Buffer for transferring data to/from a I2C slave.
+    /// @tparam C capacity of buffer
+    template <int C>
+    class Buffer : public BufferBase {
+    public:
+        Buffer(IrReceiver_TIM &device) : BufferBase(data, C, device) {}
+
+    protected:
+        alignas(4) uint8_t data[C];
+    };
+
+
+    // BufferDevice methods
+    int getBufferCount() override;
+    BufferBase &getBuffer(int index) override;
+
+    /// @brief handle timer interrupt, needs to be called from timer interrupt handler (e.g. TIMx_IRQHandler(), x=1,2...)
+    ///
+    void TIM_IRQHandler();
+protected:
+
+    Loop_Queue &loop;
+
+    // i2c
+    timer::Registers timer;
+    int timerIrq;
+
+    // dma
+    //dma::Channel dmaChannel;
+
+    // list of buffers
+    IntrusiveList<BufferBase> buffers;
+
+    // list of active transfers
+    InterruptQueue<BufferBase> transfers;
+
+    uint8_t *data = nullptr;
+    int count;
+};
+
+} // namespace coco
