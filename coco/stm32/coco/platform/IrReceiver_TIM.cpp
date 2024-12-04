@@ -7,7 +7,7 @@ namespace coco {
 
 // IrReceiver_TIM
 
-IrReceiver_TIM::IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, timer::Registers timer, int inputIndex, int timerIrq)
+IrReceiver_TIM::IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, timer::Registers timer, int timerChannel, int timerIrq)
     : BufferDevice(State::READY)
     , loop(loop)
     , timerIrq(timerIrq)
@@ -17,11 +17,11 @@ IrReceiver_TIM::IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, timer::R
 
     // configure timer
     this->timer = timer
-        .setTrigger(timer::TriggerMode::RESET_START, inputIndex == 1 ? timer::Trigger::INPUT1 : timer::Trigger::INPUT2)
+        .setTrigger(timer::TriggerMode::RESET_START, timerChannel == 1 ? timer::Trigger::INPUT1 : timer::Trigger::INPUT2)
+        .setCapture1(timer::CaptureMode::EDGE_BOTH | (timerChannel == 1 ? timer::CaptureMode::INPUT_DEFAULT : timer::CaptureMode::INPUT_ALTERNATE) | timer::CaptureMode::ENABLED)
+        .setCapture2(timer::CaptureMode::EDGE_BOTH | timer::CaptureMode::INPUT_DEFAULT)
         .setCompare3(240) // 12ms timeout
-        .setDmaInterruptEnable(timer::Enable::CAPTURE1_INTERRUPT | timer::Enable::COMPARE3_INTERRUPT)
-        .setCapture1(timer::CaptureMode::EDGE_BOTH | (inputIndex == 1 ? timer::CaptureMode::INPUT_DEFAULT : timer::CaptureMode::INPUT_ALTERNATE) | timer::CaptureMode::ENABLED)
-        .setCapture2(timer::CaptureMode::EDGE_BOTH | timer::CaptureMode::INPUT_DEFAULT);
+        .setDmaInterruptEnable(timer::Enable::CAPTURE1_INTERRUPT | timer::Enable::COMPARE3_INTERRUPT);
     nvic::setPriority(this->timerIrq, nvic::Priority::MEDIUM); // interrupt gets enabled in first call to start()
 }
 
@@ -67,8 +67,8 @@ void IrReceiver_TIM::TIM_IRQHandler() {
     }
     if ((status & timer::Status::COMPARE3) != 0) {
         // timeout
-        timer.stop();
-        timer->CNT = 0;
+        timer.stop().reset();
+        //timer->CNT = 0;
 
         this->transfers.pop(
             [this](BufferBase &buffer) {

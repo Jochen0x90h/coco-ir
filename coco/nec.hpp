@@ -12,7 +12,7 @@ namespace coco {
 namespace nec {
 
 /// @brief Packet
-/// Only checks for inverse command as some remote controls use the address bytes differently, but are constant for all keys
+/// Only checks for inverse command as some remote controls use the address bytes differently, but are the same for all keys
 struct Packet {
     uint8_t address1;
     uint8_t address2;

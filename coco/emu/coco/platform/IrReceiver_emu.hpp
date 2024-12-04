@@ -1,0 +1,71 @@
+#include <coco/Array.hpp>
+#include <coco/BufferDevice.hpp>
+#include <coco/IntrusiveQueue.hpp>
+#include <coco/platform/Loop_emu.hpp>
+#include <string>
+
+
+namespace coco {
+
+/// @brief Implementation of an emulated IR receiver
+///
+class IrReceiver_emu : public BufferDevice, public Loop_emu::GuiHandler {
+public:
+    /// Configuration of an emulated measured value (e.g. temperature)
+    struct Config {
+        // messages to emit when buttons are pressed
+        Array<const uint8_t> messages[5];
+    };
+
+    /// @brief Constructor
+    /// @param loop event loop
+    /// @param messages messages to emit when buttons are pressed
+    /// @param id unique id for gui
+    IrReceiver_emu(Loop_emu &loop, const Config &config, int id);
+
+    ~IrReceiver_emu() override;
+
+
+    /// @brief Buffer for transferring data to/from emulated iR receiver device
+    ///
+    class Buffer : public coco::Buffer, public IntrusiveListNode, public IntrusiveQueueNode {
+        friend class IrReceiver_emu;
+    public:
+        /// @brief Constructor
+        /// @param headerCapacity capacity of the header
+        /// @param capacity capacity of the buffer
+        /// @param channel channel to attach to
+        Buffer(int capacity, IrReceiver_emu &device);
+        ~Buffer() override;
+
+        bool start(Op op) override;
+        bool cancel() override;
+
+    protected:
+
+        IrReceiver_emu &device;
+        Op op;
+    };
+
+
+    // BufferDevice methods
+    int getBufferCount() override;
+    Buffer &getBuffer(int index) override;
+
+protected:
+    void handle(Gui &gui) override;
+
+    Loop_native &loop;
+
+    Config config;
+    int id;
+    int sequenceNumber = 0;
+
+    // list of buffers
+    IntrusiveList<Buffer> buffers;
+
+    // list of active transfers
+    IntrusiveQueue<Buffer> transfers;
+};
+
+} // namespace coco

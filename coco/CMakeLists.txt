@@ -13,10 +13,17 @@ target_sources(${PROJECT_NAME}
 		rc6.cpp
 )
 
-if(${PLATFORM} STREQUAL "native" OR ${PLATFORM} STREQUAL "emu")
+if(${PLATFORM} STREQUAL "native")
 	# native platform (Windows, MacOS, Linux)
 
-	elseif(${PLATFORM} MATCHES "^nrf52")
+elseif(${PLATFORM} STREQUAL "emu")
+	target_sources(${PROJECT_NAME}
+		PUBLIC FILE_SET platform_headers TYPE HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/emu FILES
+			emu/coco/platform/IrReceiver_emu.hpp
+		PRIVATE
+			emu/coco/platform/IrReceiver_emu.cpp
+	)
+elseif(${PLATFORM} MATCHES "^nrf52")
 #	target_sources(${PROJECT_NAME}
 #		PUBLIC FILE_SET platform_headers TYPE HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/nrf52 FILES
 #			nrf52/coco/platform/.hpp

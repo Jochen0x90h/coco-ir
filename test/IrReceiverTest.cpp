@@ -1,5 +1,8 @@
 #include <coco/debug.hpp>
 #include <coco/StreamOperators.hpp>
+#include <coco/nec.hpp>
+#include <coco/nubert.hpp>
+#include <coco/rc6.hpp>
 #include <IrReceiverTest.hpp>
 
 
@@ -19,13 +22,32 @@ Coroutine read(Loop &loop, Buffer &buffer) {
     while (buffer.ready()) {
         co_await buffer.read();
 
-        //co_await loop.sleep(1s);
-        //debug::toggleGreen();
-
+        // debug output raw data
         for (uint8_t time : buffer) {
-            debug::out << dec(time) << ",";
+            debug::out << dec(time) << ',';
         }
         debug::out << '\n';
+
+        {
+            nec::Packet packet;
+            if (nec::decode(buffer.array<const uint8_t>(), packet)) {
+                debug::out << "NEC " << dec(packet.address1) << ' ' << dec(packet.address2) << ' ' << dec(packet.command) << '\n';
+            }
+        }
+
+        {
+            uint16_t packet;
+            if (nubert::decode(buffer.array<const uint8_t>(), packet)) {
+                debug::out << "Nubert " << dec(packet) << '\n';
+            }
+        }
+
+        {
+            rc6::Packet packet;
+            if (rc6::decode(buffer.array<const uint8_t>(), packet)) {
+                debug::out << "RC6 " << dec(packet.mode) << ' ' << dec(packet.trailer) << ' ' << dec(packet.control) << ' ' << dec(packet.data) << '\n';
+            }
+        }
     }
 }
 

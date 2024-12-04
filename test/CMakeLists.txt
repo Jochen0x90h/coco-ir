@@ -33,6 +33,7 @@ function(board_test TEST BOARD_LIB)
 endfunction()
 
 #board_test(IrReceiverTest coco-devboards::native)
+board_test(IrReceiverTest coco-devboards::emu)
 #board_test(IrReceiverTest coco-devboards::stm32f0discovery)
 #board_test(IrReceiverTest coco-devboards::stm32f3348discovery)
 #board_test(IrReceiverTest coco-devboards::stm32g431nucleo)

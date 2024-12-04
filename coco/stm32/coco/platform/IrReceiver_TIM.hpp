@@ -25,26 +25,26 @@ namespace coco {
 ///   TIM
 class IrReceiver_TIM : public BufferDevice {
 protected:
-    IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, timer::Registers timer, int inputIndex, int timerIrq);
+    IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, timer::Registers timer, int timerChannel, int timerIrq);
 
 public:
     /// @brief Constructor
     /// @param loop event loop
     /// @param inputPin input pin from the IR receiver, must be channel 1 or 2 of a timer
-    /// @param inputIndex input index of the timer, 1 or 2
     /// @param timerInfo info of general purpose timer instance to use
-    /// @param clock timer clock (e.g. APB1_TIMER_CLOCK or APB2_TIMER_CLOCK, depending on whether the timer is clocked by APB1 or APB2)
-    IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, const timer::GpInfo &timerInfo, int inputIndex, Hertz<> clock)
-        : IrReceiver_TIM(loop, inputPin, timerInfo.configure().setCountDuration(clock, 50us), inputIndex, timerInfo.irq) {}
+    /// @param timerChannel channel index of the timer, 1 or 2
+    /// @param timerClock timer clock (e.g. APB1_TIMER_CLOCK or APB2_TIMER_CLOCK, depending on whether the timer is clocked by APB1 or APB2)
+    IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, const timer::GpInfo &timerInfo, int timerChannel, Hertz<> timerClock)
+        : IrReceiver_TIM(loop, inputPin, timerInfo.configure().setCountDuration(timerClock, 50us), timerChannel, timerInfo.irq) {}
 
     /// @brief Constructor
     /// @param loop event loop
     /// @param inputPin input pin from the IR receiver, must be channel 1 or 2 of a timer
-    /// @param inputIndex input index of the timer, 1 or 2
     /// @param timerInfo info of advanced control timer instance to use
-    /// @param clock timer clock (e.g. APB1_TIMER_CLOCK or APB2_TIMER_CLOCK, depending on whether the timer is clocked by APB1 or APB2)
-    IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, const timer::AcInfo &timerInfo, int inputIndex, Hertz<> clock)
-        : IrReceiver_TIM(loop, inputPin, timerInfo.configure().setCountDuration(clock, 50us), inputIndex, timerInfo.captureCompareIrq) {}
+    /// @param timerChannel channel index of the timer, 1 or 2
+    /// @param timerClock timer clock (e.g. APB1_TIMER_CLOCK or APB2_TIMER_CLOCK, depending on whether the timer is clocked by APB1 or APB2)
+    IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, const timer::AcInfo &timerInfo, int timerChannel, Hertz<> timerClock)
+        : IrReceiver_TIM(loop, inputPin, timerInfo.configure().setCountDuration(timerClock, 50us), timerChannel, timerInfo.captureCompareIrq) {}
 
     /// @brief Destructor
     ///
