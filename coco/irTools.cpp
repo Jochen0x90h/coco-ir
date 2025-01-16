@@ -64,6 +64,7 @@ bool decodeVariableLength(const uint8_t* times, Microseconds<> markTime, Microse
 
         if ((i & 7) == 7) {
             *data = value;
+            value = 0;
             ++data;
         }
     }
@@ -72,18 +73,20 @@ bool decodeVariableLength(const uint8_t* times, Microseconds<> markTime, Microse
     return true;
 }
 
-bool decodeConstantLength(const uint8_t* times, Microseconds<> markTime0, Microseconds<> markTime1, Microseconds<> totalTime, uint8_t *data, int count) {
+bool decodeVariableMark(const uint8_t* times, Microseconds<> markTime0, Microseconds<> markTime1, uint8_t *data, int count) {
     int value = 0;
     for (int i = 0; i < count; ++i) {
         // mark time
         int mt = *(times++);
 
+        ++times;
+
         // total time
-        int t = mt + *(times++);
+        //int t = mt + *(times++);
 
         // check total time
-        if (!checkInterval(t, totalTime))
-            return false;
+        //if (!checkInterval(t, totalTime))
+        //    return false;
 
         // mark time determines bit value
         value <<= 1;
@@ -96,6 +99,7 @@ bool decodeConstantLength(const uint8_t* times, Microseconds<> markTime0, Micros
 
         if ((i & 7) == 7) {
             *data = value;
+            value = 0;
             ++data;
         }
     }
@@ -233,6 +237,7 @@ bool ManchesterDecoder::decode(Microseconds<> markTime, Microseconds<> spaceTime
 
         if ((i & 7) == 7) {
             *data = value;
+            value = 0;
             ++data;
         }
     }

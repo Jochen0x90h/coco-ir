@@ -31,21 +31,21 @@ Coroutine read(Loop &loop, Buffer &buffer) {
         {
             nec::Packet packet;
             if (nec::decode(buffer.array<const uint8_t>(), packet)) {
-                debug::out << "NEC " << dec(packet.address1) << ' ' << dec(packet.address2) << ' ' << dec(packet.command) << '\n';
+                debug::out << "NEC " << hex(packet.address1) << ' ' << hex(packet.address2) << ' ' << hex(packet.command) << '\n';
             }
         }
 
         {
             uint16_t packet;
             if (nubert::decode(buffer.array<const uint8_t>(), packet)) {
-                debug::out << "Nubert " << dec(packet) << '\n';
+                debug::out << "Nubert " << hex(packet) << '\n';
             }
         }
 
         {
             rc6::Packet packet;
             if (rc6::decode(buffer.array<const uint8_t>(), packet)) {
-                debug::out << "RC6 " << dec(packet.mode) << ' ' << dec(packet.trailer) << ' ' << dec(packet.control) << ' ' << dec(packet.data) << '\n';
+                debug::out << "RC6 " << dec(packet.mode) << ' ' << dec(packet.trailer) << ' ' << hex(packet.control) << ' ' << hex(packet.data) << '\n';
             }
         }
     }
@@ -53,6 +53,7 @@ Coroutine read(Loop &loop, Buffer &buffer) {
 
 
 int main() {
+    // start two coroutines so that one is receiving while the other is busy decoding a packet
     read(drivers.loop, drivers.buffer1);
     read(drivers.loop, drivers.buffer2);
 

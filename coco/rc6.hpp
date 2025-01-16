@@ -16,6 +16,13 @@ struct Packet {
     bool trailer;
     uint8_t control;
     uint8_t data;
+
+    bool operator ==(const Packet &other) const {
+        return this->mode == other.mode
+            && this->trailer == other.trailer
+            && this->control == other.control
+            && this->data == other.data;
+    }
 };
 
 /// @brief Decode RC6 packet

@@ -4,8 +4,8 @@ from conan.tools.cmake import CMake
 
 
 class Project(ConanFile):
-    name = "coco-i2c"
-    description = "I2C module for CoCo"
+    name = "coco-ir"
+    description = "IR receiver module for CoCo"
     license = "MIT"
     settings = "os", "compiler", "build_type", "arch"
     options = {

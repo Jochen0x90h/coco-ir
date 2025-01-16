@@ -17,6 +17,12 @@ struct Packet {
     uint8_t address1;
     uint8_t address2;
     uint8_t command;
+
+    bool operator ==(const Packet &other) const {
+        return this->address1 == other.address1
+            && this->address2 == other.address2
+            && this->command == other.command;
+    }
 };
 
 /// @brief Decode NEC packet

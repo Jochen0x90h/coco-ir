@@ -14,7 +14,7 @@ namespace coco {
 /// @return true if leader is as expected
 bool checkLeader(const uint8_t* times, Microseconds<> markTime, Microseconds<> spaceTime);
 
-/// @brief Decode data with variable length
+/// @brief Decode data with variable bit length
 /// @param times sampled transition times in 50μs resolution, at least count * 2 values
 /// @param markTime mark time
 /// @param spaceTime0 space time for bit 0
@@ -24,15 +24,14 @@ bool checkLeader(const uint8_t* times, Microseconds<> markTime, Microseconds<> s
 /// @return true if successful
 bool decodeVariableLength(const uint8_t* times, Microseconds<> markTime, Microseconds<> spaceTime0, Microseconds<> spaceTime1, uint8_t *data, int count);
 
-/// @brief Decode data with constant length
+/// @brief Decode data with variable mark length
 /// @param times sampled transition times in 50μs resolution, at least count * 2 values
 /// @param markTime0 mark time for bit 0
 /// @param markTime1 mark time for bit 1
-/// @param totalTime total time
 /// @param data output data, at least count values
 /// @param count number of bits to decode
 /// @return true if successful
-bool decodeConstantLength(const uint8_t* times, Microseconds<> markTime0, Microseconds<> markTime1, Microseconds<> totalTime, uint8_t *data, int count);
+bool decodeVariableMark(const uint8_t* times, Microseconds<> markTime0, Microseconds<> markTime1, uint8_t *data, int count);
 
 /// @brief Decode manchester. Needs a state to measure the time since the last start of a mark to syncrhonize
 ///

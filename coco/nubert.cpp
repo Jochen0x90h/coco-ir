@@ -20,10 +20,10 @@ bool decode(Array<const uint8_t> times, uint16_t &packet) {
 
     // data (MSB first?)
     uint8_t data[2];
-    if (!decodeConstantLength(times.data() + 1, 500us, 1340us, 1688us, data, 11))
+    if (!decodeVariableMark(times.data() + 1, 500us, 1340us, data, 12)) // overall length is 1688us
         return false;
 
-    packet = ((data[0] & 0x7f) << 8) | data[1];
+    packet = (data[0] << 4) | data[1];
 
     return true;
 }
