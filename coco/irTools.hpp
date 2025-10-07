@@ -7,6 +7,8 @@
 
 namespace coco {
 
+// also see https://github.com/crankyoldgit/IRremoteESP8266
+
 /// @brief Check the leader consisting of a mark and a space of defined length (not merged with following data)
 /// @param times sampled transition times in 50μs resolution, at least 3 values
 /// @param markTime mark time

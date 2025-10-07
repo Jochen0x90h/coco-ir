@@ -36,8 +36,8 @@ endfunction()
 board_test(IrReceiverTest coco-devboards::emu)
 #board_test(IrReceiverTest coco-devboards::stm32f0discovery)
 #board_test(IrReceiverTest coco-devboards::stm32f3348discovery)
-#board_test(IrReceiverTest coco-devboards::stm32g431nucleo)
-board_test(IrReceiverTest coco-devboards::stm32g474nucleo)
+#board_test(IrReceiverTest coco-devboards::nucleo-g431rb)
+board_test(IrReceiverTest coco-devboards::nucleo-g474re)
 
 
 # check if we are on a "normal" operating system such as Windows or Linux

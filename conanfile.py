@@ -27,11 +27,11 @@ class Project(ConanFile):
         self.requires("coco-device/towards1", options={"platform": self.options.platform})
 
     def build_requirements(self):
-        self.tool_requires("coco-toolchain/0.3.0", options={"platform": self.options.platform})
+        self.tool_requires("coco-toolchain/towards1", options={"platform": self.options.platform})
         self.test_requires("coco-devboards/towards1", options={"platform": self.options.platform})
         if not self.cross():
             # platform is based on a "normal" operating system such as Windows, MacOS, Linux
-            self.test_requires("gtest/1.15.0")
+            self.test_requires("gtest/1.16.0")
 
     keep_imports = True
     def imports(self):

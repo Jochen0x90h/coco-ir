@@ -21,26 +21,27 @@ struct Drivers {
 
     using IrReceiver = IrReceiver_TIM;
     IrReceiver ir{loop,
-        // select timer, also adjust IRQ handler blelow
+        // select timer, also adjust timer clock (e.g. APB1_TIMER_CLOCK) and IRQ handler (e.g. TIM3_IRQHandler())
 
         // TIM1
-        //gpio::Config::PC0 | gpio::Config::AF2, // data pin TIM1_CH1 (CN8 6) (don't forget to lookup the alternate function number in the data sheet!)
-        //timer::TIM1_INFO, // (don't forget to implement TIM1_CC_IRQHandler())
+        //gpio::PC0 | gpio::AF2, // data pin TIM1_CH1 (CN8 6) (don't forget to lookup the alternate function number in the data sheet!)
+        //timer::TIM1_INFO,
         //1, // channel 1
 
         // TIM3
-        gpio::Config::PC6 | gpio::Config::AF2, // data pin TIM3_CH1 (CN10 4)
-        timer::TIM3_INFO, // (don't forget to implement TIM3_IRQHandler())
+        gpio::PC6 | gpio::AF2, // data pin TIM3_CH1 (CN10 4)
+        timer::TIM3_INFO,
         1, // channel 1
 
         // TIM5
-        //gpio::Config::PA0 | gpio::Config::AF2, // data pin TIM5_CH1 (CN8 1)
-        //gpio::Config::PA1 | gpio::Config::AF2, // data pin TIM5_CH2 (CN8 2)
-        //timer::TIM5_INFO, // (don't forget to implement TIM5_IRQHandler())
+        //gpio::PA0 | gpio::AF2, // data pin TIM5_CH1 (CN8 1)
+        //gpio::PA1 | gpio::AF2, // data pin TIM5_CH2 (CN8 2)
+        //timer::TIM5_INFO,
         //1, // channel 1
         //2, // channel 2
 
-        APB1_TIMER_CLOCK};
+        APB1_TIMER_CLOCK}; // TIM3, TIM5
+        //APB2_TIMER_CLOCK}; // TIM1
     IrReceiver::Buffer<80> buffer1{ir};
     IrReceiver::Buffer<80> buffer2{ir};
 };

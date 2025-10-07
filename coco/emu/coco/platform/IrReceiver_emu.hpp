@@ -7,13 +7,13 @@
 
 namespace coco {
 
-/// @brief Implementation of an emulated IR receiver
-///
+/// @brief Implementation of an emulated IR receiver.
+/// Shows some buttons on the emulator gui that emit messages when pressed.
+/// Currently the buttons are fixed (cross with central button)
 class IrReceiver_emu : public BufferDevice, public Loop_emu::GuiHandler {
 public:
-    /// Configuration of an emulated measured value (e.g. temperature)
+    /// Messages to emit when buttons are pressed
     struct Config {
-        // messages to emit when buttons are pressed
         Array<const uint8_t> messages[5];
     };
 

@@ -1,4 +1,5 @@
 #include <coco/debug.hpp>
+#include <coco/convert.hpp>
 #include <coco/StreamOperators.hpp>
 #include <coco/nec.hpp>
 #include <coco/nubert.hpp>
