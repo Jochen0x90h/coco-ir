@@ -62,9 +62,8 @@ public:
         void start();
         void handle() override;
 
-        IrReceiver_TIM &device;
-
-        Op op;
+        IrReceiver_TIM &device_;
+        Op op_;
     };
 
     /// @brief Buffer for transferring data to/from a I2C slave.
@@ -88,20 +87,20 @@ public:
     void TIM_IRQHandler();
 protected:
 
-    Loop_Queue &loop;
+    Loop_Queue &loop_;
 
     // i2c
-    TimerInfo::Instance timer;
-    int timerIrq;
+    TimerInfo::Instance timer_;
+    int timerIrq_;
 
     // list of buffers
-    IntrusiveList<BufferBase> buffers;
+    IntrusiveList<BufferBase> buffers_;
 
     // list of active transfers
-    InterruptQueue<BufferBase> transfers;
+    InterruptQueue<BufferBase> transfers_;
 
-    uint8_t *data = nullptr;
-    int count;
+    uint8_t *data_ = nullptr;
+    int count_;
 };
 
 } // namespace coco
