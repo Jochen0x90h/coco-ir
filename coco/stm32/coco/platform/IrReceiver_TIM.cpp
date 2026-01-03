@@ -41,7 +41,7 @@ IrReceiver_TIM::BufferBase &IrReceiver_TIM::getBuffer(int index) {
 void IrReceiver_TIM::TIM_IRQHandler() {
     auto timer = timer_;
     auto status = timer.status();
-    timer.clearStatus(timer::Status::CAPTURE1 | timer::Status::COMPARE3);
+    timer.clear(timer::Status::CAPTURE1 | timer::Status::COMPARE3);
     if (data_ != nullptr && (status & timer::Status::CAPTURE1) != 0) {
         // detected an edge on the data pin
         int value = timer->CCR1;

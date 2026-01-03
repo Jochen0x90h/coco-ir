@@ -43,8 +43,8 @@ public:
 
     protected:
 
-        IrReceiver_emu &device;
-        Op op;
+        IrReceiver_emu &device_;
+        Op op_;
     };
 
 
@@ -55,17 +55,17 @@ public:
 protected:
     void handle(Gui &gui) override;
 
-    Loop_native &loop;
+    Loop_native &loop_;
 
-    Config config;
-    int id;
-    int sequenceNumber = 0;
+    Config config_;
+    int id_;
+    int sequenceNumber_ = 0;
 
     // list of buffers
-    IntrusiveList<Buffer> buffers;
+    IntrusiveList<Buffer> buffers_;
 
     // list of active transfers
-    IntrusiveQueue<Buffer> transfers;
+    IntrusiveQueue<Buffer> transfers_;
 };
 
 } // namespace coco
