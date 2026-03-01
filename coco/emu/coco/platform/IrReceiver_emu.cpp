@@ -34,16 +34,16 @@ void IrReceiver_emu::handle(Gui &gui) {
         true); // center button
 
     for (int i = 0; i < 5; ++i) {
-        if (result.buttons[i]) {
-            if (*result.buttons[i]) {
-                auto buffer = transfers_.pop();
-                if (buffer != nullptr) {
-                    auto data = buffer->data();
-                    int count = std::min(config_.messages[i].size(), buffer->capacity());
-                    std::ranges::copy_n(config_.messages[i].begin(), count, data);
-                    buffer->setReady(count);
-                }
-            }
+        // check if the button changed and is true
+        if (result.buttons[i] && *result.buttons[i]) {
+            auto &message = config_.messages[i];
+            transfers_.pop([&message](auto &buffer) {
+                auto data = buffer.data();
+                int count = std::min(message.size(), buffer.capacity());
+                std::ranges::copy_n(message.begin(), count, data);
+                buffer.setSuccess(count);
+                buffer.setReady();
+            });
         }
     }
 }
@@ -62,17 +62,13 @@ IrReceiver_emu::Buffer::~Buffer() {
     delete [] data_;
 }
 
-bool IrReceiver_emu::Buffer::start(Op op) {
-    if (st.state != State::READY) {
+bool IrReceiver_emu::Buffer::start() {
+    if (state_ != State::READY || (op_ & Op::READ) == 0 || size_ == 0) {
         // staring a buffer that is busy is considered a bug
-        assert(st.state != State::BUSY);
+        assert(state_ != State::BUSY);
+        setSuccess();
         return false;
     }
-
-    // check if READ or WRITE flag is set
-    assert((op & Op::READ_WRITE) != 0);
-
-    op_ = op;
 
     // add buffer to list of transfers
     device_.transfers_.push(*this);
@@ -84,12 +80,13 @@ bool IrReceiver_emu::Buffer::start(Op op) {
 }
 
 bool IrReceiver_emu::Buffer::cancel() {
-    if (st.state != State::BUSY)
+    if (state_ != State::BUSY)
         return false;
 
     // cancel immediately
     device_.transfers_.remove(*this);
-    setReady(0);
+    setError(std::errc::operation_canceled);
+    setReady();
 
     return true;
 }

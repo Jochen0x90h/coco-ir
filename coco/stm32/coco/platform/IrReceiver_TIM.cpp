@@ -66,7 +66,7 @@ void IrReceiver_TIM::TIM_IRQHandler() {
                 },
                 [](BufferBase &next) {
                     // start next buffer
-                    next.start();
+                    next.startRx();
                 }
             );
         }
@@ -81,14 +81,14 @@ void IrReceiver_TIM::TIM_IRQHandler() {
             [this](BufferBase &buffer) {
                 if (data_ == nullptr) {
                     // buffer was added while timer was running (therefore we missed a packet): start
-                    buffer.start();
+                    buffer.startRx();
                     return false;
                 } else {
                     // end of transfer: indicate that no buffer is active
                     data_ = nullptr;
 
                     // buffer size is number of received bytes
-                    buffer.size_ = buffer.capacity_ - count_;
+                    buffer.setSuccess(buffer.capacity_ - count_);
 
                     // pass buffer to event loop so that the application can be notified
                     loop_.push(buffer);
@@ -97,7 +97,7 @@ void IrReceiver_TIM::TIM_IRQHandler() {
             },
             [](BufferBase &next) {
                 // start next buffer
-                next.start();
+                next.startRx();
             }
         );
 
@@ -117,16 +117,13 @@ IrReceiver_TIM::BufferBase::BufferBase(uint8_t *data, int capacity, IrReceiver_T
 IrReceiver_TIM::BufferBase::~BufferBase() {
 }
 
-bool IrReceiver_TIM::BufferBase::start(Op op) {
-    if (st.state != State::READY || (op & Op::READ) == 0 || size_ == 0) {
-        assert(st.state != State::BUSY);
+bool IrReceiver_TIM::BufferBase::start() {
+    if (state_ != State::READY || (op_ & Op::READ) == 0 || size_ == 0) {
+        assert(state_ != State::BUSY);
+        setSuccess();
         return false;
     }
 
-    // check if READ or WRITE flag is set
-    assert((op & Op::READ_WRITE) != 0);
-
-    op_ = op;
     auto &device = device_;
 
     {
@@ -135,7 +132,7 @@ bool IrReceiver_TIM::BufferBase::start(Op op) {
         // add to list of pending transfers and start immediately if list was empty
         if (device.transfers_.push(*this)) {
             if (!device.timer_.running())
-                start();
+                startRx();
         }
     }
 
@@ -146,22 +143,17 @@ bool IrReceiver_TIM::BufferBase::start(Op op) {
 }
 
 bool IrReceiver_TIM::BufferBase::cancel() {
-    if (st.state != State::BUSY)
+    if (state_ != State::BUSY)
         return false;
     auto &device = device_;
 
     // remove from pending transfers if not yet started, otherwise complete normally
-    if (device.transfers_.remove(nvic::Guard(device.timerIrq_), *this, false))
-        setReady(0);
+    if (device.transfers_.remove(nvic::Guard(device.timerIrq_), *this, false) == 1) {
+        setError(std::errc::operation_canceled);
+        setReady();
+    }
 
     return true;
-}
-
-void IrReceiver_TIM::BufferBase::start() {
-    auto &device = device_;
-
-    device.data_ = data_;
-    device.count_ = size_;
 }
 
 void IrReceiver_TIM::BufferBase::handle() {

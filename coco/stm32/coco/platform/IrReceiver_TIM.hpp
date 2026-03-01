@@ -55,15 +55,18 @@ public:
         ~BufferBase() override;
 
         // Buffer methods
-        bool start(Op op) override;
+        bool start() override;
         bool cancel() override;
 
     protected:
-        void start();
+        void startRx() {
+            auto &device = device_;
+            device.data_ = data_;
+            device.count_ = size_;
+        }
         void handle() override;
 
         IrReceiver_TIM &device_;
-        Op op_;
     };
 
     /// @brief Buffer for transferring data to/from a I2C slave.

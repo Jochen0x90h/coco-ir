@@ -38,13 +38,12 @@ public:
         Buffer(int capacity, IrReceiver_emu &device);
         ~Buffer() override;
 
-        bool start(Op op) override;
+        bool start() override;
         bool cancel() override;
 
     protected:
 
         IrReceiver_emu &device_;
-        Op op_;
     };
 
 
