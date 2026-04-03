@@ -63,9 +63,12 @@ IrReceiver_emu::Buffer::~Buffer() {
 }
 
 bool IrReceiver_emu::Buffer::start() {
-    if (state_ != State::READY || (op_ & Op::READ) == 0 || size_ == 0) {
-        // staring a buffer that is busy is considered a bug
-        assert(state_ != State::BUSY);
+    if (state_ != State::READY) {
+        assert(false);
+        setError(std::errc::resource_unavailable_try_again);
+        return false;
+    }
+    if ((op_ & Op::READ) == 0 || size_ == 0) {
         setSuccess();
         return false;
     }

@@ -100,7 +100,7 @@ protected:
     IntrusiveList<BufferBase> buffers_;
 
     // list of active transfers
-    InterruptQueue<BufferBase> transfers_;
+    InterruptQueue2<BufferBase> transfers_;
 
     uint8_t *data_ = nullptr;
     int count_;
