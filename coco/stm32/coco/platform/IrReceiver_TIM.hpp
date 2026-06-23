@@ -44,7 +44,7 @@ public:
 
 
     // internal buffer base class, derives from IntrusiveListNode for the list of buffers and Loop_Queue::Handler to be notified from the event loop
-    class BufferBase : public coco::Buffer, public IntrusiveListNode, public Loop_Queue::Handler {
+    class BufferBase : public coco::Buffer, public IntrusiveListNode, public Loop_Queue::CompletionHandler {
         friend class IrReceiver_TIM;
     public:
         /// @brief Constructor
@@ -64,7 +64,7 @@ public:
             device.data_ = data_;
             device.count_ = size_;
         }
-        void handle() override;
+        void onCompletion() override;
 
         IrReceiver_TIM &device_;
     };
@@ -100,7 +100,7 @@ protected:
     IntrusiveList<BufferBase> buffers_;
 
     // list of active transfers
-    InterruptQueue2<BufferBase> transfers_;
+    InterruptQueue<BufferBase> transfers_;
 
     uint8_t *data_ = nullptr;
     int count_;

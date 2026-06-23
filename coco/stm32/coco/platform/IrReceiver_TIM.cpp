@@ -54,34 +54,19 @@ void IrReceiver_TIM::TIM_IRQHandler() {
         *data_ = value;
         ++data_;
         if (--count_ <= 0) {
-            // end of buffer
-            /*transfers_.pop(
-                [this](BufferBase &buffer) {
-                    // buffer size is capacity
-                    buffer.size_ = buffer.capacity_;
-
-                    // pass buffer to event loop so that the application can be notified
-                    loop_.push(buffer);
-                    return true;
-                },
+            // buffer full
+            auto b = transfers_.pop(
                 [](BufferBase &next) {
                     // start next buffer
                     next.startRx();
-                }
-            );*/
-            transfers_.pop(
-                [](BufferBase &next) {
-                    // start next buffer
-                    next.startRx();
-                },
-                [this](BufferBase &buffer) {
-                    // buffer size is capacity
-                    buffer.size_ = buffer.capacity_;
+                });
+            if (b != nullptr) {
+                auto &buffer = *b;
+                buffer.setSuccess(buffer.capacity_);
 
-                    // pass buffer to event loop so that the application can be notified
-                    loop_.push(buffer);
-                }
-            );
+                // pass buffer to event loop so that the application can be notified
+                loop_.push(buffer);
+            }
         }
 
         debug::setGreen();
@@ -90,30 +75,7 @@ void IrReceiver_TIM::TIM_IRQHandler() {
         // timeout
         timer.stop().update();
 
-        /*transfers_.pop(
-            [this](BufferBase &buffer) {
-                if (data_ == nullptr) {
-                    // buffer was added while timer was running (therefore we missed a packet): start
-                    buffer.startRx();
-                    return false;
-                } else {
-                    // end of transfer: indicate that no buffer is active
-                    data_ = nullptr;
-
-                    // buffer size is number of received bytes
-                    buffer.setSuccess(buffer.capacity_ - count_);
-
-                    // pass buffer to event loop so that the application can be notified
-                    loop_.push(buffer);
-                    return true;
-                }
-            },
-            [](BufferBase &next) {
-                // start next buffer
-                next.startRx();
-            }
-        );*/
-        transfers_.popIf(
+        auto buffer = transfers_.popIf(
             [this](BufferBase &buffer) {
                 if (data_ == nullptr) {
                     // buffer was added while timer was running (which means we missed a packet): start
@@ -131,12 +93,11 @@ void IrReceiver_TIM::TIM_IRQHandler() {
             [](BufferBase &next) {
                 // start next buffer
                 next.startRx();
-            },
-            [this](BufferBase &buffer) {
-                // pass buffer to event loop so that the application can be notified
-                loop_.push(buffer);
-            }
-        );
+            });
+        if (buffer != nullptr) {
+            // pass buffer to event loop so that the application can be notified
+            loop_.push(*buffer);
+        }
 
         debug::clearGreen();
     }
@@ -189,7 +150,7 @@ bool IrReceiver_TIM::BufferBase::cancel() {
     auto &device = device_;
 
     // remove from pending transfers if not yet started, otherwise complete normally
-    if (device.transfers_.removeButFirst(nvic::Guard(device.timerIrq_), *this)) {
+    if (device.transfers_.guardedRemoveExceptFirst(nvic::Guard(device.timerIrq_), *this)) {
         setError(std::errc::operation_canceled);
         setReady();
     }
@@ -197,7 +158,7 @@ bool IrReceiver_TIM::BufferBase::cancel() {
     return true;
 }
 
-void IrReceiver_TIM::BufferBase::handle() {
+void IrReceiver_TIM::BufferBase::onCompletion() {
     setReady();
 }
 

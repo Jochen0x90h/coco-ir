@@ -28,7 +28,7 @@ IrReceiver_emu::Buffer &IrReceiver_emu::getBuffer(int index) {
 }
 
 // gets called regularly from the event loop
-void IrReceiver_emu::handle(Gui &gui) {
+void IrReceiver_emu::onGui(Gui &gui) {
     // add D-Pad to GUI
     auto result = gui.widget<GuiDpad>(id_,
         true); // center button

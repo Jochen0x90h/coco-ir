@@ -52,7 +52,7 @@ public:
     Buffer &getBuffer(int index) override;
 
 protected:
-    void handle(Gui &gui) override;
+    void onGui(Gui &gui) override;
 
     Loop_native &loop_;
 
