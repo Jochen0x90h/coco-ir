@@ -7,7 +7,7 @@ namespace coco {
 
 // IrReceiver_TIM
 
-IrReceiver_TIM::IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, const TimerInfo &timerInfo, int timerChannel,
+IrReceiver_TIM::IrReceiver_TIM(Loop_Queue &loop, const TimerInfo &timerInfo, gpio::Config inputPin, int timerChannel,
     Hertz<> timerClock)
     : BufferDevice(State::READY)
     , loop_(loop)

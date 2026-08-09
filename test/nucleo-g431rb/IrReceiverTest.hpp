@@ -24,19 +24,19 @@ struct Drivers {
         // select timer, also adjust timer clock (e.g. APB1_TIMER_CLOCK) and IRQ handler (e.g. TIM3_IRQHandler())
 
         // TIM1
-        //gpio::PC0 | gpio::AF2, // data pin TIM1_CH1 (CN8 6) (don't forget to lookup the alternate function number in the data sheet!)
         //timer::TIM1_INFO,
+        //gpio::PC0 | gpio::AF2, // data pin TIM1_CH1 (CN8 6) (don't forget to lookup the alternate function number in the data sheet!)
         //1, // channel 1
 
         // TIM3
-        gpio::PC6 | gpio::AF2, // data pin TIM3_CH1 (CN10 4)
         timer::TIM3_INFO,
+        gpio::PC6 | gpio::AF2, // data pin TIM3_CH1 (CN10 4)
         1, // channel 1
 
         // TIM5
+        //timer::TIM5_INFO,
         //gpio::PA0 | gpio::AF2, // data pin TIM5_CH1 (CN8 1)
         //gpio::PA1 | gpio::AF2, // data pin TIM5_CH2 (CN8 2)
-        //timer::TIM5_INFO,
         //1, // channel 1
         //2, // channel 2
 

@@ -32,11 +32,11 @@ protected:
 public:
     /// @brief Constructor
     /// @param loop event loop
-    /// @param inputPin input pin from the IR receiver, must be channel 1 or 2 of a timer
     /// @param timerInfo info of timer instance to use
+    /// @param inputPin input pin from the IR receiver, must be channel 1 or 2 of a timer
     /// @param timerChannel channel index of the timer, 1 or 2
     /// @param timerClock timer clock (e.g. APB1_TIMER_CLOCK or APB2_TIMER_CLOCK, depending on whether the timer is clocked by APB1 or APB2)
-    IrReceiver_TIM(Loop_Queue &loop, gpio::Config inputPin, const TimerInfo &timerInfo, int timerChannel, Hertz<> timerClock);
+    IrReceiver_TIM(Loop_Queue &loop, const TimerInfo &timerInfo, gpio::Config inputPin, int timerChannel, Hertz<> timerClock);
 
     /// @brief Destructor
     ///
