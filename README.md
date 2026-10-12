@@ -4,7 +4,7 @@ Infrared receiver module for CoCo.
 Decodes the signals of an IR receiver
 
 ## Import
-Add coco-ir/\<version> to your conanfile where version corresponds to the git tags
+Add coco-ir/\<version> to your conanfile where version corresponds to a git tag.
 
 ## Features
 * Support for NEC protocol
